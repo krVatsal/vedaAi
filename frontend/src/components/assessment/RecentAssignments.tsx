@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { listAssignments } from '@/lib/api';
+import { getAssignments } from '@/lib/api';
 import { Assignment } from '@/types';
 import { Clock, CheckCircle, XCircle, Loader, ChevronRight, BookOpen } from 'lucide-react';
 import clsx from 'clsx';
@@ -24,7 +24,7 @@ export function RecentAssignments() {
 
   async function loadAssignments() {
     try {
-      const data = await listAssignments();
+      const data = await getAssignments();
       setAssignments(data);
     } catch {
       // silently fail - no assignments yet
@@ -54,7 +54,7 @@ export function RecentAssignments() {
           return (
             <Link
               key={a._id}
-              href={`/assessment/${a._id}`}
+              href={`/result/${a._id}`}
               className="flex items-center gap-4 glass glass-hover rounded-xl p-4 group"
             >
               {/* Icon */}
