@@ -3,16 +3,20 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev:worker": "ts-node-dev --respawn --transpile-only src/workers/assessmentWorker.ts",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:worker\"",
     "build": "tsc",
     "start": "node dist/index.js",
-    "worker": "ts-node-dev --respawn --transpile-only src/workers/assessmentWorker.ts"
+    "start:worker": "node dist/workers/assessmentWorker.js",
+    "start:all": "concurrently \"npm run start\" \"npm run start:worker\""
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.39.0",
     "bullmq": "^5.7.0",
+    "concurrently": "^9.2.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "groq-sdk": "^0.12.0",
     "ioredis": "^5.3.2",
     "mongoose": "^8.3.2",
     "multer": "^1.4.5-lts.1",

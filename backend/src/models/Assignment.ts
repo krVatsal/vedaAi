@@ -47,7 +47,7 @@ const AssignmentSchema = new Schema(
     title: { type: String, required: true },
     subject: { type: String, required: true },
     gradeLevel: { type: String, required: true },
-    dueDate: { type: String, required: true },
+    dueDate: { type: String, default: '' },
     questionTypes: [QuestionTypeSchema],
     totalMarks: { type: Number, required: true },
     duration: { type: Number, required: true },

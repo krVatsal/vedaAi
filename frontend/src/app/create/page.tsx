@@ -112,13 +112,18 @@ export default function CreateAssignmentPage() {
   };
 
   const handleSubmit = async () => {
-    if (submitting || questionTypes.length === 0) return;
+    console.log('handleSubmit triggered. submitting:', submitting, 'questionTypes length:', questionTypes.length);
+    if (submitting || questionTypes.length === 0) {
+      console.log('Returning early. submitting:', submitting, 'questionTypes.length:', questionTypes.length);
+      return;
+    }
 
     setSubmitting(true);
     setProgress(5);
     setProgressMsg('Submitting assignment...');
 
     try {
+      console.log('Building payload...');
       const apiQuestionTypes: ApiQT[] = questionTypes.map((qt) => ({
         type: LABEL_TO_TYPE[qt.label] || 'short_answer',
         count: qt.count,
@@ -129,15 +134,18 @@ export default function CreateAssignmentPage() {
         title: 'Question Paper',
         subject: 'Science',
         gradeLevel: '8th',
-        dueDate: dueDate || undefined,
+        dueDate: dueDate || '',
         questionTypes: apiQuestionTypes,
         totalMarks,
         duration: 60,
         additionalInstructions: additionalInfo || undefined,
         difficulty: 'mixed',
       };
+      
+      console.log('Calling API createAssignment with payload:', payload);
 
       const result = await createAssignment(payload, uploadedFile || undefined);
+      console.log('API createAssignment result:', result);
 
       setProgress(15);
       setProgressMsg('Generating with AI...');
@@ -166,11 +174,9 @@ export default function CreateAssignmentPage() {
         }
       );
 
-      // Also start polling as fallback in case WS doesn't connect
+      // Also start polling as fallback since worker process can't reach main server's WebSocket currently
       setTimeout(() => {
-        if (submitting) {
-          pollForCompletion(result.assignmentId);
-        }
+        pollForCompletion(result.assignmentId);
       }, 3000);
     } catch (err: any) {
       setSubmitting(false);

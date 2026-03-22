@@ -1,17 +1,42 @@
 import { WebSocket, WebSocketServer } from 'ws';
 import { IncomingMessage, Server } from 'http';
 import { JobUpdate } from '../types';
+import { getRedisConnection } from './redis';
+import IORedis from 'ioredis';
 
 interface ClientInfo {
   ws: WebSocket;
   assignmentId?: string;
 }
 
+const PUB_SUB_CHANNEL = 'ws-job-updates';
+
 class WebSocketManager {
   private wss: WebSocketServer | null = null;
   private clients: Map<string, ClientInfo> = new Map();
+  private pubClient: IORedis | null = null;
+  private subClient: IORedis | null = null;
 
   initialize(server: Server): void {
+    // Setup Redis PubSub
+    this.pubClient = getRedisConnection().duplicate();
+    this.subClient = getRedisConnection().duplicate();
+
+    this.subClient.subscribe(PUB_SUB_CHANNEL, (err, count) => {
+      if (err) console.error('Failed to subscribe to Redis PubSub:', err);
+    });
+
+    this.subClient.on('message', (channel, message) => {
+      if (channel === PUB_SUB_CHANNEL) {
+        try {
+          const { assignmentId, update } = JSON.parse(message);
+          this.broadcastLocal(assignmentId, update);
+        } catch (err) {
+          console.error('Failed to parse PubSub message:', err);
+        }
+      }
+    });
+
     this.wss = new WebSocketServer({ server, path: '/ws' });
 
     this.wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
@@ -29,12 +54,12 @@ class WebSocketManager {
               client.assignmentId = message.assignmentId;
               this.clients.set(clientId, client);
             }
-            ws.send(
-              JSON.stringify({
-                type: 'subscribed',
-                assignmentId: message.assignmentId,
-              })
-            );
+             ws.send(
+               JSON.stringify({
+                 type: 'subscribed',
+                 assignmentId: message.assignmentId,
+               })
+             );
           }
         } catch (err) {
           console.error('WS message parse error:', err);
@@ -57,12 +82,21 @@ class WebSocketManager {
     console.log('✅ WebSocket server initialized');
   }
 
-  broadcast(assignmentId: string, update: JobUpdate): void {
+  // Broadcasts to local connected clients
+  private broadcastLocal(assignmentId: string, update: JobUpdate): void {
     this.clients.forEach(({ ws, assignmentId: subId }) => {
       if (subId === assignmentId && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'job_update', data: update }));
       }
     });
+  }
+
+  // Called by worker to broadcast via Redis
+  broadcast(assignmentId: string, update: JobUpdate): void {
+    if (!this.pubClient) {
+      this.pubClient = getRedisConnection().duplicate();
+    }
+    this.pubClient.publish(PUB_SUB_CHANNEL, JSON.stringify({ assignmentId, update }));
   }
 
   broadcastAll(message: object): void {
