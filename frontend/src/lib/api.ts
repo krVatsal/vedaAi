@@ -1,61 +1,25 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:5000/ws';
 
-// ─── Types ───
-export interface QuestionType {
-  type: 'mcq' | 'short_answer' | 'long_answer' | 'true_false' | 'fill_blanks';
-  count: number;
-  marks: number;
-}
+import type {
+  QuestionType,
+  Question,
+  Section,
+  GeneratedAssessment,
+  Assignment,
+  JobStatus,
+  JobUpdate
+} from '@/types';
 
-export interface Question {
-  id: string;
-  text: string;
-  type: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  marks: number;
-  options?: string[];
-  answer?: string;
-}
-
-export interface Section {
-  id: string;
-  title: string;
-  instruction: string;
-  questions: Question[];
-  totalMarks: number;
-}
-
-export interface GeneratedAssessment {
-  title: string;
-  subject: string;
-  gradeLevel: string;
-  duration: number;
-  totalMarks: number;
-  instructions: string[];
-  sections: Section[];
-  generatedAt: string;
-}
-
-export interface Assignment {
-  _id: string;
-  title: string;
-  subject: string;
-  gradeLevel: string;
-  dueDate: string;
-  questionTypes: QuestionType[];
-  totalMarks: number;
-  duration: number;
-  additionalInstructions?: string;
-  difficulty: 'easy' | 'medium' | 'hard' | 'mixed';
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  jobId?: string;
-  result?: GeneratedAssessment;
-  error?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
+export type {
+  QuestionType,
+  Question,
+  Section,
+  GeneratedAssessment,
+  Assignment,
+  JobStatus,
+  JobUpdate
+};
 export interface CreateAssignmentPayload {
   title: string;
   subject: string;
@@ -131,18 +95,6 @@ export async function regenerateAssessment(id: string): Promise<void> {
 }
 
 // ─── WebSocket for Real-time Updates ───
-
-export type JobStatus = 'active' | 'completed' | 'failed';
-
-export interface JobUpdate {
-  jobId: string;
-  assignmentId: string;
-  status: JobStatus;
-  progress?: number;
-  message?: string;
-  result?: GeneratedAssessment;
-  error?: string;
-}
 
 export function subscribeToAssignment(
   assignmentId: string,

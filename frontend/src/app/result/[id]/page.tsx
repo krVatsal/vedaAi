@@ -275,18 +275,20 @@ export default function ResultPage() {
                 <h3 className="text-base lg:text-lg font-bold font-inter tracking-[-0.04em] leading-[160%] text-text-primary">
                   Answer Key:
                 </h3>
-                {paper.sections.map((section) =>
-                  section.questions.map((q, qi) =>
-                    q.answer ? (
-                      <p
-                        key={q.id}
-                        className="text-sm lg:text-base font-normal font-inter tracking-[-0.04em] leading-[150%] lg:leading-[200%] text-text-primary"
-                      >
-                        <strong>Q{qi + 1}:</strong> {q.answer}
-                      </p>
-                    ) : null
-                  )
-                )}
+                {paper.sections.map((section) => (
+                  <div key={section.id} className="flex flex-col gap-2">
+                    {section.questions.map((q, qi) =>
+                      q.answer ? (
+                        <p
+                          key={q.id}
+                          className="text-sm lg:text-base font-normal font-inter tracking-[-0.04em] leading-[150%] lg:leading-[200%] text-text-primary"
+                        >
+                          <strong>Q{qi + 1}:</strong> {q.answer}
+                        </p>
+                      ) : null
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
