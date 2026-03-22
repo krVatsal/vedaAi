@@ -120,6 +120,16 @@ export async function deleteAssignment(id: string): Promise<void> {
   if (!res.ok) throw new Error('Failed to delete assignment');
 }
 
+export async function regenerateAssessment(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/assignments/${id}/regenerate`, {
+    method: 'POST',
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'Request failed' }));
+    throw new Error(err.error || 'Failed to regenerate assignment');
+  }
+}
+
 // ─── WebSocket for Real-time Updates ───
 
 export type JobStatus = 'active' | 'completed' | 'failed';

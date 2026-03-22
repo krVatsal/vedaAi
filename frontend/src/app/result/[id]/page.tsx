@@ -5,8 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/ui/Sidebar';
 import { TopBar } from '@/components/ui/TopBar';
 import { MobileTopBar } from '@/components/ui/MobileTopBar';
-import { getAssignment, type Assignment } from '@/lib/api';
-import { Download, Loader2 } from 'lucide-react';
+import { getAssignment, regenerateAssessment, type Assignment } from '@/lib/api';
+import { Download, Loader2, RefreshCw } from 'lucide-react';
 
 function DifficultyBadge({ level }: { level: string }) {
   const colorMap: Record<string, string> = {
@@ -30,6 +30,7 @@ export default function ResultPage() {
   const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -72,6 +73,20 @@ export default function ResultPage() {
 
     fetchData();
   }, [id]);
+
+  const handleRegenerate = async () => {
+    if (!id || isRegenerating) return;
+    setIsRegenerating(true);
+    setError('');
+    
+    try {
+      await regenerateAssessment(id);
+      window.location.reload();
+    } catch (err: any) {
+      setError(err.message || 'Failed to trigger regeneration');
+      setIsRegenerating(false);
+    }
+  };
 
   const paper = assignment?.result;
 
@@ -144,8 +159,8 @@ export default function ResultPage() {
               <p className="text-sm lg:text-xl font-bold tracking-[-0.04em] leading-[140%] text-white">
                 {aiMessage}
               </p>
-              {/* Download Button */}
-              <div className="flex items-start gap-4">
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-4">
                 <button
                   onClick={() => window.print()}
                   className="flex items-center gap-1 px-6 py-2.5 bg-white rounded-full hover:bg-gray-50 transition-colors"
@@ -153,6 +168,16 @@ export default function ResultPage() {
                   <Download size={24} className="text-text-primary" strokeWidth={2} />
                   <span className="text-base font-medium tracking-[-0.04em] text-text-primary leading-[22px]">
                     Download as PDF
+                  </span>
+                </button>
+                <button
+                  onClick={handleRegenerate}
+                  disabled={isRegenerating}
+                  className="flex items-center gap-2 px-6 py-2.5 bg-[#181818] rounded-full hover:bg-[#2a2a2a] transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw size={20} className={`text-white ${isRegenerating ? 'animate-spin' : ''}`} strokeWidth={2} />
+                  <span className="text-base font-medium tracking-[-0.04em] text-white leading-[22px]">
+                    {isRegenerating ? 'Regenerating...' : 'Regenerate Paper'}
                   </span>
                 </button>
               </div>
