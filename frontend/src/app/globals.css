@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-bricolage: 'Bricolage Grotesque', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+
+  /* Figma design tokens */
+  --color-primary: #303030;
+  --color-secondary: rgba(94, 94, 94, 0.8);
+  --color-disabled: #A9A9A9;
+  --color-bg-white: #FFFFFF;
+  --color-bg-offwhite: #F0F0F0;
+  --color-bg-gradient-top: #EEEEEE;
+  --color-bg-gradient-bottom: #DADADA;
+  --color-btn-primary: #181818;
+  --color-btn-orange: #FF5623;
+  --color-accent-green: #17CB9E;
+  --color-accent-red: #FF4040;
+  --color-navy: #011625;
+  --color-light-navy: #417BA4;
+  --color-grey2: #D5D5D5;
+  --color-grey3: #E1DCEB;
+  --color-grey4: #CCC6D9;
+  --color-text-dark: #5E5E5E;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: linear-gradient(180deg, #EEEEEE 0%, #DADADA 100%);
+  color: #303030;
+  min-height: 100vh;
+  font-family: 'Bricolage Grotesque', sans-serif;
+}
+
+/* Custom scrollbar - light theme */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F0F0F0;
+}
+::-webkit-scrollbar-thumb {
+  background: #C0C0C0;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A0A0A0;
+}
+
+/* Print styles for PDF export */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
