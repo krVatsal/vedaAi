@@ -4,11 +4,11 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "dev:worker": "ts-node-dev --respawn --transpile-only src/workers/assessmentWorker.ts",
-    "dev:all": "concurrently \"npm run dev\" \"npm run dev:worker\"",
+    "dev:all": "npx concurrently \"npm run dev\" \"npm run dev:worker\"",
     "build": "tsc",
     "start": "node dist/index.js",
     "start:worker": "node dist/workers/assessmentWorker.js",
-    "start:all": "concurrently \"npm run start\" \"npm run start:worker\""
+    "start:all": "npx concurrently \"npm run start\" \"npm run start:worker\""
   },
   "dependencies": {
     "bullmq": "^5.7.0",
