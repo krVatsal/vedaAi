@@ -10,7 +10,7 @@ let queueEvents: QueueEvents | null = null;
 export function getAssessmentQueue(): Queue {
   if (!assessmentQueue) {
     assessmentQueue = new Queue(QUEUE_NAME, {
-      connection: getRedisConnection(),
+      connection: getRedisConnection() as any,
       defaultJobOptions: {
         attempts: 3,
         backoff: {
@@ -28,7 +28,7 @@ export function getAssessmentQueue(): Queue {
 export function getQueueEvents(): QueueEvents {
   if (!queueEvents) {
     queueEvents = new QueueEvents(QUEUE_NAME, {
-      connection: getRedisConnection(),
+      connection: getRedisConnection() as any,
     });
   }
   return queueEvents;

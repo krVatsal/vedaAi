@@ -81,7 +81,7 @@ async function startWorker() {
   await connectDB();
 
   const worker = new Worker(QUEUE_NAME, processJob, {
-    connection: getRedisConnection(),
+    connection: getRedisConnection() as any,
     concurrency: 3,
   });
 
