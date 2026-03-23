@@ -13,6 +13,7 @@ function buildPrompt(input: AssignmentInput): string {
         `- ${qt.count} ${qt.type.replace('_', ' ')} questions (${qt.marks} marks each)`
     )
     .join('\n');
+  const totalQuestions = input.questionTypes.reduce((sum, qt) => sum + qt.count, 0);
 
   return `You are an expert academic assessment creator. Generate a structured question paper based on the following specifications.
 
@@ -74,7 +75,11 @@ IMPORTANT RULES:
 5. Generate realistic, subject-appropriate questions for ${input.subject} at ${input.gradeLevel} level
 6. Distribute difficulty: ${input.difficulty === 'mixed' ? '40% easy, 40% medium, 20% hard' : `all ${input.difficulty}`}
 7. Include an "answer" field for each question with the correct answer or a brief model answer
-8. Return ONLY valid JSON, no markdown, no explanation`;
+8. Use this exact question-type breakdown with no extras and no omissions:
+${questionBreakdown}
+9. The total number of questions across all sections must be exactly ${totalQuestions}
+10. The title must be exactly "${input.title}", the subject must be exactly "${input.subject}", and the gradeLevel must be exactly "${input.gradeLevel}"
+11. Return ONLY valid JSON, no markdown, no explanation`;
 }
 
 export async function generateAssessment(
@@ -173,11 +178,11 @@ function normalizeAssessment(
   );
 
   return {
-    title: parsed.title || input.title,
-    subject: parsed.subject || input.subject,
-    gradeLevel: parsed.gradeLevel || input.gradeLevel,
-    duration: parsed.duration || input.duration,
-    totalMarks: parsed.totalMarks || input.totalMarks,
+    title: input.title,
+    subject: input.subject,
+    gradeLevel: input.gradeLevel,
+    duration: input.duration,
+    totalMarks: input.totalMarks,
     instructions: Array.isArray(parsed.instructions)
       ? parsed.instructions
       : [

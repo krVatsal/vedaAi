@@ -1,5 +1,22 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:5000/ws';
+
+function getDefaultWsUrl() {
+  const configuredWsUrl = process.env.NEXT_PUBLIC_WS_URL;
+  if (configuredWsUrl) return configuredWsUrl;
+
+  try {
+    const apiUrl = new URL(API_BASE);
+    apiUrl.protocol = apiUrl.protocol === 'https:' ? 'wss:' : 'ws:';
+    apiUrl.pathname = '/ws';
+    apiUrl.search = '';
+    apiUrl.hash = '';
+    return apiUrl.toString();
+  } catch {
+    return 'ws://localhost:5000/ws';
+  }
+}
+
+const WS_URL = getDefaultWsUrl();
 
 import type {
   QuestionType,

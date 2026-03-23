@@ -12,6 +12,7 @@ import {
   type CreateAssignmentPayload,
   type QuestionType as ApiQT,
 } from '@/lib/api';
+import { GRADE_LEVELS, SUBJECTS } from '@/types';
 import {
   UploadCloud,
   Calendar,
@@ -59,6 +60,11 @@ export default function CreateAssignmentPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentStep] = useState(1);
+  const [title, setTitle] = useState('Question Paper');
+  const [subject, setSubject] = useState('Science');
+  const [gradeLevel, setGradeLevel] = useState('Grade 8');
+  const [duration, setDuration] = useState(60);
+  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard' | 'mixed'>('mixed');
   const [dueDate, setDueDate] = useState('');
   const [additionalInfo, setAdditionalInfo] = useState('');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -118,6 +124,11 @@ export default function CreateAssignmentPage() {
       return;
     }
 
+    if (!title.trim() || !subject.trim() || !gradeLevel.trim()) {
+      alert('Please fill title, subject, and class before generating.');
+      return;
+    }
+
     setSubmitting(true);
     setProgress(5);
     setProgressMsg('Submitting assignment...');
@@ -131,15 +142,15 @@ export default function CreateAssignmentPage() {
       }));
 
       const payload: CreateAssignmentPayload = {
-        title: 'Question Paper',
-        subject: 'Science',
-        gradeLevel: '8th',
+        title: title.trim(),
+        subject: subject.trim(),
+        gradeLevel: gradeLevel.trim(),
         dueDate: dueDate || '',
         questionTypes: apiQuestionTypes,
         totalMarks,
-        duration: 60,
+        duration,
         additionalInstructions: additionalInfo || undefined,
-        difficulty: 'mixed',
+        difficulty,
       };
       
       console.log('Calling API createAssignment with payload:', payload);
@@ -274,6 +285,84 @@ export default function CreateAssignmentPage() {
 
               {/* Form Fields */}
               <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2 lg:col-span-2">
+                    <label className="text-base font-bold tracking-[-0.04em] text-text-primary leading-[140%]">
+                      Title
+                    </label>
+                    <input
+                      type="text"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      className="w-full h-11 border border-[#DADADA] rounded-full px-4 text-base font-medium tracking-[-0.04em] text-text-primary leading-[140%] bg-white placeholder:text-disabled focus:outline-none focus:border-text-secondary transition-colors"
+                      placeholder="e.g. Mid Term Science Paper"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-base font-bold tracking-[-0.04em] text-text-primary leading-[140%]">
+                      Subject
+                    </label>
+                    <select
+                      value={subject}
+                      onChange={(e) => setSubject(e.target.value)}
+                      className="w-full h-11 border border-[#DADADA] rounded-full px-4 text-base font-medium tracking-[-0.04em] text-text-primary leading-[140%] bg-white focus:outline-none focus:border-text-secondary transition-colors"
+                    >
+                      {SUBJECTS.map((item) => (
+                        <option key={item} value={item}>
+                          {item}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-base font-bold tracking-[-0.04em] text-text-primary leading-[140%]">
+                      Class
+                    </label>
+                    <select
+                      value={gradeLevel}
+                      onChange={(e) => setGradeLevel(e.target.value)}
+                      className="w-full h-11 border border-[#DADADA] rounded-full px-4 text-base font-medium tracking-[-0.04em] text-text-primary leading-[140%] bg-white focus:outline-none focus:border-text-secondary transition-colors"
+                    >
+                      {GRADE_LEVELS.map((item) => (
+                        <option key={item} value={item}>
+                          {item}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-base font-bold tracking-[-0.04em] text-text-primary leading-[140%]">
+                      Duration (minutes)
+                    </label>
+                    <input
+                      type="number"
+                      min={10}
+                      max={300}
+                      value={duration}
+                      onChange={(e) => setDuration(Math.max(10, Number(e.target.value) || 10))}
+                      className="w-full h-11 border border-[#DADADA] rounded-full px-4 text-base font-medium tracking-[-0.04em] text-text-primary leading-[140%] bg-white placeholder:text-disabled focus:outline-none focus:border-text-secondary transition-colors"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-base font-bold tracking-[-0.04em] text-text-primary leading-[140%]">
+                      Difficulty
+                    </label>
+                    <select
+                      value={difficulty}
+                      onChange={(e) => setDifficulty(e.target.value as 'easy' | 'medium' | 'hard' | 'mixed')}
+                      className="w-full h-11 border border-[#DADADA] rounded-full px-4 text-base font-medium tracking-[-0.04em] text-text-primary leading-[140%] bg-white focus:outline-none focus:border-text-secondary transition-colors"
+                    >
+                      <option value="easy">Easy</option>
+                      <option value="medium">Medium</option>
+                      <option value="hard">Hard</option>
+                      <option value="mixed">Mixed</option>
+                    </select>
+                  </div>
+                </div>
                 {/* ─── File Upload ─── */}
                 <div className="flex flex-col gap-3">
                   <div

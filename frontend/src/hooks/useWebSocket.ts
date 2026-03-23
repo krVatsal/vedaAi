@@ -9,6 +9,25 @@ interface UseWebSocketOptions {
   onUpdate?: (update: JobUpdate) => void;
 }
 
+function getWebSocketUrl() {
+  if (process.env.NEXT_PUBLIC_WS_URL) {
+    return process.env.NEXT_PUBLIC_WS_URL;
+  }
+
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+  try {
+    const apiUrl = new URL(apiBase);
+    apiUrl.protocol = apiUrl.protocol === 'https:' ? 'wss:' : 'ws:';
+    apiUrl.pathname = '/ws';
+    apiUrl.search = '';
+    apiUrl.hash = '';
+    return apiUrl.toString();
+  } catch {
+    return 'ws://localhost:5000/ws';
+  }
+}
+
 export function useWebSocket({ assignmentId, onUpdate }: UseWebSocketOptions = {}) {
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -17,7 +36,7 @@ export function useWebSocket({ assignmentId, onUpdate }: UseWebSocketOptions = {
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:5000/ws';
+    const wsUrl = getWebSocketUrl();
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
